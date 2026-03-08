@@ -51,6 +51,7 @@ Built a small but useful open-source project: **WebWatcher**.
 
 It:
 - monitors webpage content changes
+- supports CSS selector-based tracking
 - detects updates with content hashing
 - stores change events in SQLite
 - supports Feishu webhook notifications

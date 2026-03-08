@@ -16,6 +16,7 @@ def cmd_add(args):
         url=args.url,
         interval_seconds=args.interval,
         created_at=datetime.now().isoformat(timespec="seconds"),
+        selector=args.selector,
     )
     print(f"已添加监控 #{monitor_id}: {args.name} -> {args.url}")
 
@@ -30,6 +31,7 @@ def cmd_list(_args):
         print(
             f"[{item.id}] {item.name}\n"
             f"  URL: {item.url}\n"
+            f"  Selector: {item.selector or '-'}\n"
             f"  Interval: {item.interval_seconds}s\n"
             f"  Last Checked: {item.last_checked_at or '-'}\n"
             f"  Last Hash: {(item.last_hash[:12] + '...') if item.last_hash else '-'}\n"
@@ -44,7 +46,8 @@ def cmd_check(_args):
 
     for item in results:
         status = "CHANGED" if item["changed"] else "OK"
-        print(f"[{status}] {item['name']} -> {item['summary']}")
+        selector_suffix = f" [selector={item['selector']}]" if item.get("selector") else ""
+        print(f"[{status}] {item['name']}{selector_suffix} -> {item['summary']}")
 
 
 def cmd_events(args):
@@ -73,6 +76,7 @@ def build_parser():
     add_parser.add_argument("--url", required=True, help="监控 URL")
     add_parser.add_argument("--name", required=True, help="监控名称")
     add_parser.add_argument("--interval", type=int, default=600, help="检查间隔（秒）")
+    add_parser.add_argument("--selector", help="可选：只监控匹配的 CSS selector 内容")
     add_parser.set_defaults(func=cmd_add)
 
     list_parser = subparsers.add_parser("list", help="查看监控")

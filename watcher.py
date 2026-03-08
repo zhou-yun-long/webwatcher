@@ -16,7 +16,7 @@ def run_checks() -> list[dict]:
     for monitor in monitors:
         checked_at = now_iso()
         try:
-            _text, new_hash = fetch_and_hash(monitor.url)
+            _text, new_hash = fetch_and_hash(monitor.url, selector=monitor.selector)
             changed = monitor.last_hash != new_hash
             summary = summarize_change(monitor.last_hash, new_hash)
 
@@ -28,8 +28,9 @@ def run_checks() -> list[dict]:
                     changed_at=checked_at,
                     summary=summary,
                 )
+                selector_line = f"\nSelector: {monitor.selector}" if monitor.selector else ""
                 send_feishu_text(
-                    f"[WebWatcher] 页面变化\n名称: {monitor.name}\nURL: {monitor.url}\n时间: {checked_at}\n说明: {summary}"
+                    f"[WebWatcher] 页面变化\n名称: {monitor.name}\nURL: {monitor.url}{selector_line}\n时间: {checked_at}\n说明: {summary}"
                 )
 
             update_monitor_state(monitor.id, new_hash, checked_at)
@@ -38,6 +39,7 @@ def run_checks() -> list[dict]:
                     "monitor_id": monitor.id,
                     "name": monitor.name,
                     "url": monitor.url,
+                    "selector": monitor.selector,
                     "changed": changed,
                     "summary": summary,
                 }
@@ -48,6 +50,7 @@ def run_checks() -> list[dict]:
                     "monitor_id": monitor.id,
                     "name": monitor.name,
                     "url": monitor.url,
+                    "selector": monitor.selector,
                     "changed": False,
                     "summary": f"检查失败: {exc}",
                 }

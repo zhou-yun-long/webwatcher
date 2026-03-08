@@ -25,12 +25,14 @@ WebWatcher 就是这个基础版。
 - Run manual checks
 - List monitors and events
 - Optional Feishu webhook notifications
+- Optional CSS selector monitoring
 
 ## Demo Flow
 
 ```bash
 python app.py init
 python app.py add --url https://example.com --interval 600 --name "Example Home"
+python app.py add --url https://news.ycombinator.com --selector '.titleline' --interval 600 --name "HN Titles"
 python app.py check
 python app.py list
 python app.py events
@@ -76,6 +78,12 @@ python app.py init
 
 ```bash
 python app.py add --url https://example.com --interval 600 --name "Example Home"
+```
+
+Monitor a specific page section with CSS selector:
+
+```bash
+python app.py add --url https://news.ycombinator.com --selector '.titleline' --interval 600 --name "HN Titles"
 ```
 
 ### 4) Run a check
@@ -126,6 +134,12 @@ python app.py init
 python app.py add --url <URL> --interval 600 --name "Monitor Name"
 ```
 
+### Add selector-based monitor
+
+```bash
+python app.py add --url <URL> --selector '.content' --interval 600 --name "Monitor Name"
+```
+
 ### Run checks
 
 ```bash
@@ -151,7 +165,7 @@ python app.py events --limit 20
 - Payments
 - Telegram / email notifications
 - Playwright rendering for JS-heavy pages
-- CSS selector mode
+- CSS selector mode ✅
 - Docker deployment
 - Web dashboard
 
@@ -161,7 +175,7 @@ Those are intentional follow-up versions.
 
 ### v0.2
 - Feishu webhook notification ✅
-- CSS selector extraction
+- CSS selector extraction ✅
 - Noise filtering
 
 ### v0.3

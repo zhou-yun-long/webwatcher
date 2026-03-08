@@ -11,7 +11,7 @@ DEFAULT_HEADERS = {
 }
 
 
-def fetch_text(url: str, timeout: int = 20) -> str:
+def fetch_text(url: str, timeout: int = 20, selector: str | None = None) -> str:
     response = requests.get(url, headers=DEFAULT_HEADERS, timeout=timeout)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, "html.parser")
@@ -19,7 +19,14 @@ def fetch_text(url: str, timeout: int = 20) -> str:
     for tag in soup(["script", "style", "noscript"]):
         tag.decompose()
 
-    text = soup.get_text("\n")
+    if selector:
+        selected = soup.select(selector)
+        if not selected:
+            raise ValueError(f"selector not found: {selector}")
+        text = "\n".join(node.get_text("\n") for node in selected)
+    else:
+        text = soup.get_text("\n")
+
     text = re.sub(r"\n+", "\n", text)
     text = re.sub(r"[ \t]+", " ", text)
     return text.strip()
@@ -29,8 +36,8 @@ def hash_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def fetch_and_hash(url: str) -> Tuple[str, str]:
-    text = fetch_text(url)
+def fetch_and_hash(url: str, selector: str | None = None) -> Tuple[str, str]:
+    text = fetch_text(url, selector=selector)
     digest = hash_text(text)
     return text, digest
 
