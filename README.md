@@ -49,6 +49,8 @@ webwatcher/
   notifier.py         # Feishu notification
   models.py           # Data models
   requirements.txt
+  Dockerfile
+  docker-compose.yml
   .gitignore
   LICENSE
   README.md
@@ -67,6 +69,15 @@ pip install -r requirements.txt
 ```
 
 If not, you can still install directly in a disposable environment.
+
+### Or run with Docker
+
+```bash
+docker build -t webwatcher .
+docker run --rm -v $(pwd):/app -w /app webwatcher python app.py init
+docker run --rm -v $(pwd):/app -w /app webwatcher python app.py add --url https://example.com --interval 600 --name "Example Home"
+docker run --rm -v $(pwd):/app -w /app webwatcher python app.py check
+```
 
 ### 2) Initialize database
 
@@ -166,7 +177,7 @@ python app.py events --limit 20
 - Telegram / email notifications
 - Playwright rendering for JS-heavy pages
 - CSS selector mode ✅
-- Docker deployment
+- Docker deployment ✅
 - Web dashboard
 
 Those are intentional follow-up versions.
@@ -180,7 +191,7 @@ Those are intentional follow-up versions.
 
 ### v0.3
 - Playwright support for dynamic pages
-- Docker / Compose
+- Docker / Compose ✅
 - Config file support
 
 ### v0.4

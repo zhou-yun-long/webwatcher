@@ -6,7 +6,7 @@
 
 ## GitHub description
 
-Minimal open-source website change monitor built with Python and SQLite.
+Minimal open-source website change monitor with CSS selector tracking, Feishu notifications, and Docker support.
 
 ## Suggested topics
 
@@ -27,9 +27,11 @@ Minimal open-source website change monitor built with Python and SQLite.
 
 它能：
 - 监控网页内容变化
+- 支持按 CSS selector 监控页面局部区域
 - 用哈希判断页面是否更新
 - 把变化事件记到 SQLite
 - 支持飞书 webhook 通知
+- 支持 Docker 快速运行
 
 我故意把第一版做得很克制：
 - 没有大而全后台
@@ -56,9 +58,9 @@ It:
 - stores change events in SQLite
 - supports Feishu webhook notifications
 
-I intentionally kept v0.1 small and practical.
+I intentionally kept it small and practical.
 No huge platform. No overbuilt SaaS layer.
-Just a simple, hackable website change monitor.
+Just a simple, hackable website change monitor with selector support and easy Docker setup.
 
 Good fit for tracking:
 - job pages
@@ -81,8 +83,8 @@ Put these in the first screen of the repo:
 
 Tag next release as:
 
-`v0.1.0`
+`v0.3.0`
 
 Release title:
 
-`WebWatcher v0.1.0 - initial open-source MVP`
+`WebWatcher v0.3.0 - selector monitoring and Docker support`

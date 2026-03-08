@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  webwatcher:
+    build: .
+    container_name: webwatcher
+    working_dir: /app
+    environment:
+      FEISHU_WEBHOOK_URL: ${FEISHU_WEBHOOK_URL:-}
+    volumes:
+      - ./:/app
+    command: ["python", "app.py", "check"]
