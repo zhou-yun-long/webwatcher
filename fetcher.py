@@ -32,12 +32,34 @@ def fetch_text(url: str, timeout: int = 20, selector: str | None = None) -> str:
     return text.strip()
 
 
+def normalize_text(text: str, noise_rules: str | None = None) -> str:
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    normalized = "\n".join(lines)
+
+    if not noise_rules:
+        return normalized
+
+    for rule in [item.strip() for item in noise_rules.split(",") if item.strip()]:
+        if rule == "ignore_digits":
+            normalized = re.sub(r"\d+", "<NUM>", normalized)
+        elif rule == "ignore_dates":
+            normalized = re.sub(r"\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b", "<DATE>", normalized)
+            normalized = re.sub(r"\b\d{1,2}:\d{2}(:\d{2})?\b", "<TIME>", normalized)
+        elif rule.startswith("regex:"):
+            pattern = rule.split(":", 1)[1]
+            normalized = re.sub(pattern, "", normalized)
+
+    normalized = re.sub(r"\n+", "\n", normalized)
+    return normalized.strip()
+
+
 def hash_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def fetch_and_hash(url: str, selector: str | None = None) -> Tuple[str, str]:
-    text = fetch_text(url, selector=selector)
+def fetch_and_hash(url: str, selector: str | None = None, noise_rules: str | None = None) -> Tuple[str, str]:
+    raw_text = fetch_text(url, selector=selector)
+    text = normalize_text(raw_text, noise_rules=noise_rules)
     digest = hash_text(text)
     return text, digest
 

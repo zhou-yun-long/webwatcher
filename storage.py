@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS monitors (
     url TEXT NOT NULL,
     interval_seconds INTEGER NOT NULL,
     selector TEXT,
+    noise_rules TEXT,
     last_hash TEXT,
     last_checked_at TEXT,
     created_at TEXT NOT NULL
@@ -44,13 +45,22 @@ def init_db() -> None:
         columns = {row['name'] for row in conn.execute("PRAGMA table_info(monitors)").fetchall()}
         if 'selector' not in columns:
             conn.execute("ALTER TABLE monitors ADD COLUMN selector TEXT")
+        if 'noise_rules' not in columns:
+            conn.execute("ALTER TABLE monitors ADD COLUMN noise_rules TEXT")
 
 
-def add_monitor(name: str, url: str, interval_seconds: int, created_at: str, selector: str | None = None) -> int:
+def add_monitor(
+    name: str,
+    url: str,
+    interval_seconds: int,
+    created_at: str,
+    selector: str | None = None,
+    noise_rules: str | None = None,
+) -> int:
     with get_conn() as conn:
         cursor = conn.execute(
-            "INSERT INTO monitors (name, url, interval_seconds, selector, created_at) VALUES (?, ?, ?, ?, ?)",
-            (name, url, interval_seconds, selector, created_at),
+            "INSERT INTO monitors (name, url, interval_seconds, selector, noise_rules, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+            (name, url, interval_seconds, selector, noise_rules, created_at),
         )
         return int(cursor.lastrowid)
 
@@ -58,7 +68,7 @@ def add_monitor(name: str, url: str, interval_seconds: int, created_at: str, sel
 def list_monitors() -> List[Monitor]:
     with get_conn() as conn:
         rows = conn.execute(
-            "SELECT id, name, url, interval_seconds, selector, last_hash, last_checked_at, created_at FROM monitors ORDER BY id ASC"
+            "SELECT id, name, url, interval_seconds, selector, noise_rules, last_hash, last_checked_at, created_at FROM monitors ORDER BY id ASC"
         ).fetchall()
     return [Monitor(**dict(row)) for row in rows]
 

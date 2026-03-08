@@ -26,6 +26,7 @@ WebWatcher 就是这个基础版。
 - List monitors and events
 - Optional Feishu webhook notifications
 - Optional CSS selector monitoring
+- Optional noise filtering rules for unstable content
 
 ## Demo Flow
 
@@ -33,6 +34,7 @@ WebWatcher 就是这个基础版。
 python app.py init
 python app.py add --url https://example.com --interval 600 --name "Example Home"
 python app.py add --url https://news.ycombinator.com --selector '.titleline' --interval 600 --name "HN Titles"
+python app.py add --url https://example.com --selector 'h1' --noise-rules ignore_digits,ignore_dates --interval 600 --name "Stable Example"
 python app.py check
 python app.py list
 python app.py events
@@ -97,6 +99,12 @@ Monitor a specific page section with CSS selector:
 python app.py add --url https://news.ycombinator.com --selector '.titleline' --interval 600 --name "HN Titles"
 ```
 
+Reduce false positives with noise filtering:
+
+```bash
+python app.py add --url https://example.com --selector 'h1' --noise-rules ignore_digits,ignore_dates --interval 600 --name "Stable Example"
+```
+
 ### 4) Run a check
 
 ```bash
@@ -151,6 +159,17 @@ python app.py add --url <URL> --interval 600 --name "Monitor Name"
 python app.py add --url <URL> --selector '.content' --interval 600 --name "Monitor Name"
 ```
 
+### Add noise filtering rules
+
+```bash
+python app.py add --url <URL> --selector '.content' --noise-rules ignore_digits,ignore_dates --interval 600 --name "Monitor Name"
+```
+
+Supported noise rules:
+- `ignore_digits`
+- `ignore_dates`
+- `regex:<pattern>`
+
 ### Run checks
 
 ```bash
@@ -187,7 +206,7 @@ Those are intentional follow-up versions.
 ### v0.2
 - Feishu webhook notification ✅
 - CSS selector extraction ✅
-- Noise filtering
+- Noise filtering ✅
 
 ### v0.3
 - Playwright support for dynamic pages

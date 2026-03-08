@@ -9,6 +9,7 @@ class Monitor:
     url: str
     interval_seconds: int
     selector: Optional[str]
+    noise_rules: Optional[str]
     last_hash: Optional[str]
     last_checked_at: Optional[str]
     created_at: str

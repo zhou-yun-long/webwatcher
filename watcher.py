@@ -16,7 +16,11 @@ def run_checks() -> list[dict]:
     for monitor in monitors:
         checked_at = now_iso()
         try:
-            _text, new_hash = fetch_and_hash(monitor.url, selector=monitor.selector)
+            _text, new_hash = fetch_and_hash(
+                monitor.url,
+                selector=monitor.selector,
+                noise_rules=monitor.noise_rules,
+            )
             changed = monitor.last_hash != new_hash
             summary = summarize_change(monitor.last_hash, new_hash)
 
@@ -29,8 +33,9 @@ def run_checks() -> list[dict]:
                     summary=summary,
                 )
                 selector_line = f"\nSelector: {monitor.selector}" if monitor.selector else ""
+                noise_line = f"\nNoise Rules: {monitor.noise_rules}" if monitor.noise_rules else ""
                 send_feishu_text(
-                    f"[WebWatcher] 页面变化\n名称: {monitor.name}\nURL: {monitor.url}{selector_line}\n时间: {checked_at}\n说明: {summary}"
+                    f"[WebWatcher] 页面变化\n名称: {monitor.name}\nURL: {monitor.url}{selector_line}{noise_line}\n时间: {checked_at}\n说明: {summary}"
                 )
 
             update_monitor_state(monitor.id, new_hash, checked_at)
@@ -40,6 +45,7 @@ def run_checks() -> list[dict]:
                     "name": monitor.name,
                     "url": monitor.url,
                     "selector": monitor.selector,
+                    "noise_rules": monitor.noise_rules,
                     "changed": changed,
                     "summary": summary,
                 }
@@ -51,6 +57,7 @@ def run_checks() -> list[dict]:
                     "name": monitor.name,
                     "url": monitor.url,
                     "selector": monitor.selector,
+                    "noise_rules": monitor.noise_rules,
                     "changed": False,
                     "summary": f"检查失败: {exc}",
                 }

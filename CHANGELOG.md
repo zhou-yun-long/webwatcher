@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.4.0
+- Added noise filtering rules for unstable page content
+- Added `--noise-rules` CLI option and monitor storage support
+- Reduced false positives from digits, dates, and regex-matched noise
+
 ## v0.3.0
 - Added Dockerfile and docker-compose support
 - Improved setup experience for servers without Python venv
