@@ -1,75 +1,93 @@
 # WebWatcher
 
-Minimal open-source website change monitor built with Python + SQLite.
+Track webpage changes with Python + SQLite.
 
-给一个 URL，WebWatcher 会抓取页面文本、生成内容哈希，并在页面发生变化时记录事件。这个版本专注于 **简单、可运行、适合开源首发**。
+WebWatcher is a minimal open-source website change monitor for people who just want to watch a page, detect updates, and keep a simple local history — without setting up a heavy monitoring platform.
 
-## Why WebWatcher?
+## Why it exists
 
-很多人并不需要一个复杂的大监控平台，他们只想要：
+Most people do **not** need a giant monitoring stack.
+They usually just want to:
 
-- 监控一个网页有没有变
-- 知道什么时候变了
-- 后续能接消息通知
-- 能自己部署、自己改
+- watch a webpage for changes
+- monitor only part of a page with a CSS selector
+- reduce false positives from unstable content
+- support JavaScript-rendered pages when needed
+- store change history locally
+- optionally send change alerts to Feishu
 
-WebWatcher 就是这个基础版。
+WebWatcher is built for that exact use case.
 
-## Features
+## Highlights
 
-- Add monitor tasks from CLI
-- Fetch webpage text content
-- Detect changes with SHA-256 hash
-- Store monitor state in SQLite
-- Record change events
-- Run manual checks
-- List monitors and events
+- Simple CLI workflow
+- SQLite storage
+- CSS selector-based monitoring
+- Noise filtering rules
+- Playwright support for dynamic pages
+- JSON config file support
 - Optional Feishu webhook notifications
-- Optional CSS selector monitoring
-- Optional noise filtering rules for unstable content
-- Optional Playwright mode for JavaScript-rendered pages
-- JSON config file support for database / fetch / notifications
+- Docker / docker-compose support
 
-## Demo Flow
+## Quick start
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m playwright install chromium
 cp webwatcher.example.json webwatcher.json
 python app.py init
-python app.py add --url https://example.com --interval 600 --name "Example Home"
-python app.py add --url https://news.ycombinator.com --selector '.titleline' --interval 600 --name "HN Titles"
-python app.py add --url https://example.com --selector 'h1' --noise-rules ignore_digits,ignore_dates --interval 600 --name "Stable Example"
-python app.py add --url https://example.com --fetch-mode playwright --wait-for-selector '#app' --wait-after-load-ms 1500 --name "Dynamic Example"
-python app.py config-show
+python app.py add --url https://example.com --name "Example Home"
+python app.py check
+```
+
+## Example commands
+
+```bash
+# Static page
+python app.py add \
+  --url https://example.com \
+  --name "Example Home"
+
+# Partial page monitoring
+python app.py add \
+  --url https://news.ycombinator.com \
+  --selector '.titleline' \
+  --name "HN Titles"
+
+# Noise filtering
+python app.py add \
+  --url https://example.com \
+  --selector 'h1' \
+  --noise-rules ignore_digits,ignore_dates \
+  --name "Stable Example"
+
+# JavaScript-rendered page
+python app.py add \
+  --url https://example.com/dashboard \
+  --name "Dynamic Example" \
+  --fetch-mode playwright \
+  --wait-for-selector '#app' \
+  --wait-after-load-ms 1500
+
 python app.py check
 python app.py list
-python app.py events
+python app.py events --limit 20
 ```
 
-## Project Structure
+## Good fit for
 
-```text
-webwatcher/
-  app.py
-  config.py           # Config loader
-  watcher.py          # Check workflow
-  storage.py          # SQLite storage
-  fetcher.py          # Web fetching and cleanup
-  notifier.py         # Feishu notification
-  models.py           # Data models
-  requirements.txt
-  webwatcher.example.json
-  Dockerfile
-  docker-compose.yml
-  .gitignore
-  LICENSE
-  README.md
-```
+- job pages
+- announcement pages
+- docs / changelog pages
+- competitor pages
+- rankings / listings
+- simple internal dashboards
 
-## Quick Start
+## Install
 
-### 1) Install dependencies
-
-If your system supports virtualenv:
+### Local Python environment
 
 ```bash
 python3 -m venv .venv
@@ -78,9 +96,17 @@ pip install -r requirements.txt
 python -m playwright install chromium
 ```
 
-If not, you can still install directly in a disposable environment.
+### Docker
 
-### 2) Create config file
+```bash
+docker build -t webwatcher .
+docker run --rm -v $(pwd):/app -w /app webwatcher python app.py init
+docker run --rm -v $(pwd):/app -w /app webwatcher python app.py check
+```
+
+## Config
+
+Create a config file:
 
 ```bash
 cp webwatcher.example.json webwatcher.json
@@ -89,74 +115,13 @@ cp webwatcher.example.json webwatcher.json
 Default config path:
 - `./webwatcher.json`
 
-You can also override it with environment variable:
+Override with environment variable:
 
 ```bash
 export WEBWATCHER_CONFIG=/path/to/webwatcher.json
 ```
 
-### 3) Initialize database
-
-```bash
-python app.py init
-```
-
-### 4) Add a monitor
-
-```bash
-python app.py add --url https://example.com --interval 600 --name "Example Home"
-```
-
-Monitor a specific page section with CSS selector:
-
-```bash
-python app.py add --url https://news.ycombinator.com --selector '.titleline' --interval 600 --name "HN Titles"
-```
-
-Reduce false positives with noise filtering:
-
-```bash
-python app.py add --url https://example.com --selector 'h1' --noise-rules ignore_digits,ignore_dates --interval 600 --name "Stable Example"
-```
-
-Monitor JavaScript-rendered content with Playwright:
-
-```bash
-python app.py add \
-  --url https://example.com/dashboard \
-  --name "Dynamic Example" \
-  --fetch-mode playwright \
-  --wait-for-selector '#app' \
-  --wait-after-load-ms 1500
-```
-
-### 5) Show current config
-
-```bash
-python app.py config-show
-```
-
-### 6) Run a check
-
-```bash
-python app.py check
-```
-
-### 7) Show monitor list
-
-```bash
-python app.py list
-```
-
-### 8) Show recent events
-
-```bash
-python app.py events --limit 20
-```
-
-## Config File
-
-Example:
+Example config:
 
 ```json
 {
@@ -176,18 +141,24 @@ Example:
 ```
 
 Supported config keys:
-- `database.path`: SQLite file path
-- `fetch.timeout`: default fetch timeout in seconds
-- `fetch.mode`: `static` or `playwright`
-- `fetch.wait_for_selector`: default Playwright wait selector
-- `fetch.wait_after_load_ms`: default extra wait time after page load
-- `notifications.feishu_webhook_url`: Feishu bot webhook URL
+- `database.path`
+- `fetch.timeout`
+- `fetch.mode`
+- `fetch.wait_for_selector`
+- `fetch.wait_after_load_ms`
+- `notifications.feishu_webhook_url`
 
 Environment override:
 - `FEISHU_WEBHOOK_URL` overrides config file webhook
 - `WEBWATCHER_CONFIG` overrides config file path
 
-## Feishu Notification
+See current resolved config:
+
+```bash
+python app.py config-show
+```
+
+## Feishu notification
 
 Set a Feishu bot webhook in either:
 - `webwatcher.json` → `notifications.feishu_webhook_url`
@@ -199,44 +170,24 @@ Then run checks as usual:
 python app.py check
 ```
 
-When a monitor changes, WebWatcher will send a simple text alert to Feishu.
-
-## CLI Commands
-
-### Initialize database
+## CLI
 
 ```bash
 python app.py init
+python app.py add --url <URL> --name "Monitor Name"
+python app.py list
+python app.py check
+python app.py events --limit 20
+python app.py config-show
 ```
 
-### Add monitor
+### Add monitor options
 
 ```bash
 python app.py add --url <URL> --interval 600 --name "Monitor Name"
-```
-
-### Add selector-based monitor
-
-```bash
-python app.py add --url <URL> --selector '.content' --interval 600 --name "Monitor Name"
-```
-
-### Add noise filtering rules
-
-```bash
-python app.py add --url <URL> --selector '.content' --noise-rules ignore_digits,ignore_dates --interval 600 --name "Monitor Name"
-```
-
-### Add Playwright-based monitor
-
-```bash
-python app.py add --url <URL> --name "Monitor Name" --fetch-mode playwright --wait-for-selector '.ready'
-```
-
-### Show current config
-
-```bash
-python app.py config-show
+python app.py add --url <URL> --selector '.content' --name "Monitor Name"
+python app.py add --url <URL> --selector '.content' --noise-rules ignore_digits,ignore_dates --name "Monitor Name"
+python app.py add --url <URL> --fetch-mode playwright --wait-for-selector '.ready' --name "Monitor Name"
 ```
 
 Supported fetch modes:
@@ -248,63 +199,29 @@ Supported noise rules:
 - `ignore_dates`
 - `regex:<pattern>`
 
-### Run checks
+## What this version does not include
 
-```bash
-python app.py check
-```
-
-### List monitors
-
-```bash
-python app.py list
-```
-
-### List events
-
-```bash
-python app.py events --limit 20
-```
-
-## What this version does NOT include
-
-- User accounts
-- Multi-tenant SaaS
-- Payments
+- user accounts
+- multi-tenant SaaS
+- payments
 - Telegram / email notifications
-- Web dashboard
+- web dashboard
 
-Those are intentional follow-up versions.
+That is intentional.
 
-## Roadmap
+## Release status
 
-### v0.3
+### v0.3.0
 - Playwright support for dynamic pages ✅
 - Docker / Compose ✅
 - Config file support ✅
 
-### v0.4
-- Better release packaging
-- Web dashboard
-- Multi-user auth
-- Multi-channel notifications
+### Next
+- better packaging / release polish
+- web dashboard
+- multi-user auth
+- multi-channel notifications
 - AI-generated change summary
-
-## Monetization Ideas
-
-- Hosted SaaS version
-- Team notifications and collaboration
-- Advanced rules / selector mode / screenshots
-- AI summary and change classification
-- Custom monitoring solutions for businesses
-
-## Good first open-source release because
-
-- Easy to understand in 1 minute
-- Solves a real problem
-- Has a clean MVP boundary
-- Easy to demo
-- Easy to expand into a product
 
 ## License
 
