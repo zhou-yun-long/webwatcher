@@ -1,12 +1,10 @@
-import os
 import requests
 
-
-FEISHU_WEBHOOK_ENV = "FEISHU_WEBHOOK_URL"
+from config import get_feishu_webhook_url
 
 
 def send_feishu_text(text: str) -> bool:
-    webhook = os.getenv(FEISHU_WEBHOOK_ENV)
+    webhook = get_feishu_webhook_url()
     if not webhook:
         return False
 

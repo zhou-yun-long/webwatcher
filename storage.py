@@ -2,10 +2,11 @@ import sqlite3
 from pathlib import Path
 from typing import List
 
+from config import get_database_path
 from models import Event, Monitor
 
 
-DB_PATH = Path(__file__).parent / "webwatcher.sqlite3"
+DB_PATH = get_database_path()
 
 
 SCHEMA_SQL = """
@@ -36,8 +37,14 @@ CREATE TABLE IF NOT EXISTS events (
 """
 
 
+def get_db_path() -> Path:
+    return get_database_path()
+
+
 def get_conn() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_PATH)
+    db_path = get_db_path()
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 

@@ -5,6 +5,8 @@ from typing import Tuple
 import requests
 from bs4 import BeautifulSoup
 
+from config import get_fetch_defaults
+
 
 DEFAULT_HEADERS = {
     "User-Agent": "WebWatcher/0.3 (+https://github.com/yourname/webwatcher)"
@@ -90,12 +92,20 @@ def fetch_text_playwright(
 
 def fetch_text(
     url: str,
-    timeout: int = 20,
+    timeout: int | None = None,
     selector: str | None = None,
-    fetch_mode: str = "static",
+    fetch_mode: str | None = None,
     wait_for_selector: str | None = None,
-    wait_after_load_ms: int = 0,
+    wait_after_load_ms: int | None = None,
 ) -> str:
+    defaults = get_fetch_defaults()
+    timeout = timeout if timeout is not None else defaults["timeout"]
+    fetch_mode = fetch_mode or defaults["mode"]
+    wait_for_selector = wait_for_selector if wait_for_selector is not None else defaults["wait_for_selector"]
+    wait_after_load_ms = (
+        wait_after_load_ms if wait_after_load_ms is not None else defaults["wait_after_load_ms"]
+    )
+
     if fetch_mode == "playwright":
         return fetch_text_playwright(
             url,
@@ -136,12 +146,14 @@ def fetch_and_hash(
     url: str,
     selector: str | None = None,
     noise_rules: str | None = None,
-    fetch_mode: str = "static",
+    fetch_mode: str | None = None,
     wait_for_selector: str | None = None,
-    wait_after_load_ms: int = 0,
+    wait_after_load_ms: int | None = None,
+    timeout: int | None = None,
 ) -> Tuple[str, str]:
     raw_text = fetch_text(
         url,
+        timeout=timeout,
         selector=selector,
         fetch_mode=fetch_mode,
         wait_for_selector=wait_for_selector,

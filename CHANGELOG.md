@@ -9,6 +9,9 @@
 - Added Playwright support for JavaScript-rendered pages
 - Added `--fetch-mode playwright` for dynamic page monitoring
 - Added `--wait-for-selector` and `--wait-after-load-ms` tuning options
+- Added JSON config file support with `webwatcher.json`
+- Added `WEBWATCHER_CONFIG` environment override for custom config path
+- Added configurable database path and Feishu webhook source
 - Added Dockerfile and docker-compose support
 - Improved setup experience for servers without Python venv
 - Updated launch materials for the current release

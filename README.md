@@ -28,15 +28,18 @@ WebWatcher 就是这个基础版。
 - Optional CSS selector monitoring
 - Optional noise filtering rules for unstable content
 - Optional Playwright mode for JavaScript-rendered pages
+- JSON config file support for database / fetch / notifications
 
 ## Demo Flow
 
 ```bash
+cp webwatcher.example.json webwatcher.json
 python app.py init
 python app.py add --url https://example.com --interval 600 --name "Example Home"
 python app.py add --url https://news.ycombinator.com --selector '.titleline' --interval 600 --name "HN Titles"
 python app.py add --url https://example.com --selector 'h1' --noise-rules ignore_digits,ignore_dates --interval 600 --name "Stable Example"
 python app.py add --url https://example.com --fetch-mode playwright --wait-for-selector '#app' --wait-after-load-ms 1500 --name "Dynamic Example"
+python app.py config-show
 python app.py check
 python app.py list
 python app.py events
@@ -46,13 +49,15 @@ python app.py events
 
 ```text
 webwatcher/
-  app.py              # CLI entry
+  app.py
+  config.py           # Config loader
   watcher.py          # Check workflow
   storage.py          # SQLite storage
   fetcher.py          # Web fetching and cleanup
   notifier.py         # Feishu notification
   models.py           # Data models
   requirements.txt
+  webwatcher.example.json
   Dockerfile
   docker-compose.yml
   .gitignore
@@ -75,24 +80,28 @@ python -m playwright install chromium
 
 If not, you can still install directly in a disposable environment.
 
-### Or run with Docker
+### 2) Create config file
 
 ```bash
-docker build -t webwatcher .
-docker run --rm -v $(pwd):/app -w /app webwatcher python app.py init
-docker run --rm -v $(pwd):/app -w /app webwatcher python app.py add --url https://example.com --interval 600 --name "Example Home"
-docker run --rm -v $(pwd):/app -w /app webwatcher python app.py check
+cp webwatcher.example.json webwatcher.json
 ```
 
-> If you want Playwright mode inside Docker, make sure browser binaries are installed in the image.
+Default config path:
+- `./webwatcher.json`
 
-### 2) Initialize database
+You can also override it with environment variable:
+
+```bash
+export WEBWATCHER_CONFIG=/path/to/webwatcher.json
+```
+
+### 3) Initialize database
 
 ```bash
 python app.py init
 ```
 
-### 3) Add a monitor
+### 4) Add a monitor
 
 ```bash
 python app.py add --url https://example.com --interval 600 --name "Example Home"
@@ -121,31 +130,68 @@ python app.py add \
   --wait-after-load-ms 1500
 ```
 
-### 4) Run a check
+### 5) Show current config
+
+```bash
+python app.py config-show
+```
+
+### 6) Run a check
 
 ```bash
 python app.py check
 ```
 
-### 5) Show monitor list
+### 7) Show monitor list
 
 ```bash
 python app.py list
 ```
 
-### 6) Show recent events
+### 8) Show recent events
 
 ```bash
 python app.py events --limit 20
 ```
 
+## Config File
+
+Example:
+
+```json
+{
+  "database": {
+    "path": "data/webwatcher.sqlite3"
+  },
+  "fetch": {
+    "timeout": 20,
+    "mode": "static",
+    "wait_for_selector": null,
+    "wait_after_load_ms": 0
+  },
+  "notifications": {
+    "feishu_webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/xxxx"
+  }
+}
+```
+
+Supported config keys:
+- `database.path`: SQLite file path
+- `fetch.timeout`: default fetch timeout in seconds
+- `fetch.mode`: `static` or `playwright`
+- `fetch.wait_for_selector`: default Playwright wait selector
+- `fetch.wait_after_load_ms`: default extra wait time after page load
+- `notifications.feishu_webhook_url`: Feishu bot webhook URL
+
+Environment override:
+- `FEISHU_WEBHOOK_URL` overrides config file webhook
+- `WEBWATCHER_CONFIG` overrides config file path
+
 ## Feishu Notification
 
-Set a Feishu bot webhook in environment variables:
-
-```bash
-export FEISHU_WEBHOOK_URL="https://open.feishu.cn/open-apis/bot/v2/hook/xxxx"
-```
+Set a Feishu bot webhook in either:
+- `webwatcher.json` → `notifications.feishu_webhook_url`
+- or environment variable `FEISHU_WEBHOOK_URL`
 
 Then run checks as usual:
 
@@ -187,6 +233,12 @@ python app.py add --url <URL> --selector '.content' --noise-rules ignore_digits,
 python app.py add --url <URL> --name "Monitor Name" --fetch-mode playwright --wait-for-selector '.ready'
 ```
 
+### Show current config
+
+```bash
+python app.py config-show
+```
+
 Supported fetch modes:
 - `static`
 - `playwright`
@@ -220,7 +272,6 @@ python app.py events --limit 20
 - Multi-tenant SaaS
 - Payments
 - Telegram / email notifications
-- Config file support
 - Web dashboard
 
 Those are intentional follow-up versions.
@@ -230,10 +281,10 @@ Those are intentional follow-up versions.
 ### v0.3
 - Playwright support for dynamic pages ✅
 - Docker / Compose ✅
-- Config file support
+- Config file support ✅
 
 ### v0.4
-- Better release packaging / config file
+- Better release packaging
 - Web dashboard
 - Multi-user auth
 - Multi-channel notifications

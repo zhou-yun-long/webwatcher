@@ -7,6 +7,7 @@ This release makes WebWatcher more practical for real-world website monitoring, 
 - Added **Playwright-based dynamic page monitoring**
 - Added **CSS selector-based monitoring**
 - Added **noise filtering** for unstable content
+- Added **JSON config file support**
 - Added **Feishu webhook notifications**
 - Added **Dockerfile** and **docker-compose** support
 - Improved README examples and quick start experience
@@ -14,6 +15,10 @@ This release makes WebWatcher more practical for real-world website monitoring, 
 ## Example
 
 ```bash
+cp webwatcher.example.json webwatcher.json
+python app.py init
+python app.py config-show
+
 python app.py add \
   --url https://example.com/dashboard \
   --name "Dynamic Example" \
@@ -23,6 +28,15 @@ python app.py add \
 
 python app.py check
 ```
+
+## Config support
+
+You can now configure:
+- database path
+- default fetch timeout
+- default fetch mode
+- default Playwright wait options
+- Feishu webhook URL
 
 ## Good fit for
 

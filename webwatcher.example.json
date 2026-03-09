@@ -1,0 +1,14 @@
+{
+  "database": {
+    "path": "data/webwatcher.sqlite3"
+  },
+  "fetch": {
+    "timeout": 20,
+    "mode": "static",
+    "wait_for_selector": null,
+    "wait_after_load_ms": 0
+  },
+  "notifications": {
+    "feishu_webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/xxxx"
+  }
+}

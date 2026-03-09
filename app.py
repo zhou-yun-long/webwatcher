@@ -1,13 +1,15 @@
 import argparse
+import json
 from datetime import datetime
 
-from storage import add_monitor, init_db, list_events, list_monitors
+from config import get_config_path, load_config
+from storage import add_monitor, get_db_path, init_db, list_events, list_monitors
 from watcher import run_checks
 
 
 def cmd_init(_args):
     init_db()
-    print("数据库已初始化")
+    print(f"数据库已初始化: {get_db_path()}")
 
 
 def cmd_add(args):
@@ -76,6 +78,13 @@ def cmd_events(args):
         )
 
 
+def cmd_config_show(_args):
+    config = load_config()
+    print(json.dumps(config, ensure_ascii=False, indent=2))
+    print(f"\nConfig Path: {get_config_path()}")
+    print(f"Database Path: {get_db_path()}")
+
+
 def build_parser():
     parser = argparse.ArgumentParser(description="WebWatcher CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -119,6 +128,9 @@ def build_parser():
     events_parser = subparsers.add_parser("events", help="查看变化事件")
     events_parser.add_argument("--limit", type=int, default=20, help="返回条数")
     events_parser.set_defaults(func=cmd_events)
+
+    config_parser = subparsers.add_parser("config-show", help="查看当前配置")
+    config_parser.set_defaults(func=cmd_config_show)
 
     return parser
 
