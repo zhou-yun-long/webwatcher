@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS monitors (
     interval_seconds INTEGER NOT NULL,
     selector TEXT,
     noise_rules TEXT,
+    fetch_mode TEXT DEFAULT 'static',
+    wait_for_selector TEXT,
+    wait_after_load_ms INTEGER DEFAULT 0,
     last_hash TEXT,
     last_checked_at TEXT,
     created_at TEXT NOT NULL
@@ -47,6 +50,12 @@ def init_db() -> None:
             conn.execute("ALTER TABLE monitors ADD COLUMN selector TEXT")
         if 'noise_rules' not in columns:
             conn.execute("ALTER TABLE monitors ADD COLUMN noise_rules TEXT")
+        if 'fetch_mode' not in columns:
+            conn.execute("ALTER TABLE monitors ADD COLUMN fetch_mode TEXT DEFAULT 'static'")
+        if 'wait_for_selector' not in columns:
+            conn.execute("ALTER TABLE monitors ADD COLUMN wait_for_selector TEXT")
+        if 'wait_after_load_ms' not in columns:
+            conn.execute("ALTER TABLE monitors ADD COLUMN wait_after_load_ms INTEGER DEFAULT 0")
 
 
 def add_monitor(
@@ -56,11 +65,14 @@ def add_monitor(
     created_at: str,
     selector: str | None = None,
     noise_rules: str | None = None,
+    fetch_mode: str = 'static',
+    wait_for_selector: str | None = None,
+    wait_after_load_ms: int = 0,
 ) -> int:
     with get_conn() as conn:
         cursor = conn.execute(
-            "INSERT INTO monitors (name, url, interval_seconds, selector, noise_rules, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-            (name, url, interval_seconds, selector, noise_rules, created_at),
+            "INSERT INTO monitors (name, url, interval_seconds, selector, noise_rules, fetch_mode, wait_for_selector, wait_after_load_ms, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (name, url, interval_seconds, selector, noise_rules, fetch_mode, wait_for_selector, wait_after_load_ms, created_at),
         )
         return int(cursor.lastrowid)
 
@@ -68,9 +80,15 @@ def add_monitor(
 def list_monitors() -> List[Monitor]:
     with get_conn() as conn:
         rows = conn.execute(
-            "SELECT id, name, url, interval_seconds, selector, noise_rules, last_hash, last_checked_at, created_at FROM monitors ORDER BY id ASC"
+            "SELECT id, name, url, interval_seconds, selector, noise_rules, fetch_mode, wait_for_selector, wait_after_load_ms, last_hash, last_checked_at, created_at FROM monitors ORDER BY id ASC"
         ).fetchall()
-    return [Monitor(**dict(row)) for row in rows]
+    items = []
+    for row in rows:
+        data = dict(row)
+        data['fetch_mode'] = data.get('fetch_mode') or 'static'
+        data['wait_after_load_ms'] = data.get('wait_after_load_ms') or 0
+        items.append(Monitor(**data))
+    return items
 
 
 def update_monitor_state(monitor_id: int, new_hash: str, checked_at: str) -> None:

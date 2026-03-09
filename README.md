@@ -27,6 +27,7 @@ WebWatcher 就是这个基础版。
 - Optional Feishu webhook notifications
 - Optional CSS selector monitoring
 - Optional noise filtering rules for unstable content
+- Optional Playwright mode for JavaScript-rendered pages
 
 ## Demo Flow
 
@@ -35,6 +36,7 @@ python app.py init
 python app.py add --url https://example.com --interval 600 --name "Example Home"
 python app.py add --url https://news.ycombinator.com --selector '.titleline' --interval 600 --name "HN Titles"
 python app.py add --url https://example.com --selector 'h1' --noise-rules ignore_digits,ignore_dates --interval 600 --name "Stable Example"
+python app.py add --url https://example.com --fetch-mode playwright --wait-for-selector '#app' --wait-after-load-ms 1500 --name "Dynamic Example"
 python app.py check
 python app.py list
 python app.py events
@@ -68,6 +70,7 @@ If your system supports virtualenv:
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+python -m playwright install chromium
 ```
 
 If not, you can still install directly in a disposable environment.
@@ -80,6 +83,8 @@ docker run --rm -v $(pwd):/app -w /app webwatcher python app.py init
 docker run --rm -v $(pwd):/app -w /app webwatcher python app.py add --url https://example.com --interval 600 --name "Example Home"
 docker run --rm -v $(pwd):/app -w /app webwatcher python app.py check
 ```
+
+> If you want Playwright mode inside Docker, make sure browser binaries are installed in the image.
 
 ### 2) Initialize database
 
@@ -103,6 +108,17 @@ Reduce false positives with noise filtering:
 
 ```bash
 python app.py add --url https://example.com --selector 'h1' --noise-rules ignore_digits,ignore_dates --interval 600 --name "Stable Example"
+```
+
+Monitor JavaScript-rendered content with Playwright:
+
+```bash
+python app.py add \
+  --url https://example.com/dashboard \
+  --name "Dynamic Example" \
+  --fetch-mode playwright \
+  --wait-for-selector '#app' \
+  --wait-after-load-ms 1500
 ```
 
 ### 4) Run a check
@@ -165,6 +181,16 @@ python app.py add --url <URL> --selector '.content' --interval 600 --name "Monit
 python app.py add --url <URL> --selector '.content' --noise-rules ignore_digits,ignore_dates --interval 600 --name "Monitor Name"
 ```
 
+### Add Playwright-based monitor
+
+```bash
+python app.py add --url <URL> --name "Monitor Name" --fetch-mode playwright --wait-for-selector '.ready'
+```
+
+Supported fetch modes:
+- `static`
+- `playwright`
+
 Supported noise rules:
 - `ignore_digits`
 - `ignore_dates`
@@ -194,26 +220,20 @@ python app.py events --limit 20
 - Multi-tenant SaaS
 - Payments
 - Telegram / email notifications
-- Playwright rendering for JS-heavy pages
-- CSS selector mode ✅
-- Docker deployment ✅
+- Config file support
 - Web dashboard
 
 Those are intentional follow-up versions.
 
 ## Roadmap
 
-### v0.2
-- Feishu webhook notification ✅
-- CSS selector extraction ✅
-- Noise filtering ✅
-
 ### v0.3
-- Playwright support for dynamic pages
+- Playwright support for dynamic pages ✅
 - Docker / Compose ✅
 - Config file support
 
 ### v0.4
+- Better release packaging / config file
 - Web dashboard
 - Multi-user auth
 - Multi-channel notifications

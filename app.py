@@ -18,6 +18,9 @@ def cmd_add(args):
         created_at=datetime.now().isoformat(timespec="seconds"),
         selector=args.selector,
         noise_rules=args.noise_rules,
+        fetch_mode=args.fetch_mode,
+        wait_for_selector=args.wait_for_selector,
+        wait_after_load_ms=args.wait_after_load_ms,
     )
     print(f"已添加监控 #{monitor_id}: {args.name} -> {args.url}")
 
@@ -32,7 +35,10 @@ def cmd_list(_args):
         print(
             f"[{item.id}] {item.name}\n"
             f"  URL: {item.url}\n"
+            f"  Fetch Mode: {item.fetch_mode or 'static'}\n"
             f"  Selector: {item.selector or '-'}\n"
+            f"  Wait For: {item.wait_for_selector or '-'}\n"
+            f"  Wait After Load: {item.wait_after_load_ms or 0}ms\n"
             f"  Noise Rules: {item.noise_rules or '-'}\n"
             f"  Interval: {item.interval_seconds}s\n"
             f"  Last Checked: {item.last_checked_at or '-'}\n"
@@ -48,9 +54,11 @@ def cmd_check(_args):
 
     for item in results:
         status = "CHANGED" if item["changed"] else "OK"
+        mode_suffix = f" [mode={item['fetch_mode']}]" if item.get("fetch_mode") else ""
         selector_suffix = f" [selector={item['selector']}]" if item.get("selector") else ""
+        wait_suffix = f" [wait_for={item['wait_for_selector']}]" if item.get("wait_for_selector") else ""
         noise_suffix = f" [noise={item['noise_rules']}]" if item.get("noise_rules") else ""
-        print(f"[{status}] {item['name']}{selector_suffix}{noise_suffix} -> {item['summary']}")
+        print(f"[{status}] {item['name']}{mode_suffix}{selector_suffix}{wait_suffix}{noise_suffix} -> {item['summary']}")
 
 
 def cmd_events(args):
@@ -83,6 +91,22 @@ def build_parser():
     add_parser.add_argument(
         "--noise-rules",
         help="可选：噪声过滤规则，逗号分隔，如 ignore_digits,ignore_dates 或 regex:<pattern>",
+    )
+    add_parser.add_argument(
+        "--fetch-mode",
+        choices=["static", "playwright"],
+        default="static",
+        help="抓取模式：static（默认）或 playwright（适合 JS 动态页面）",
+    )
+    add_parser.add_argument(
+        "--wait-for-selector",
+        help="仅 Playwright 模式可选：等待某个 selector 出现后再提取内容",
+    )
+    add_parser.add_argument(
+        "--wait-after-load-ms",
+        type=int,
+        default=0,
+        help="仅 Playwright 模式可选：页面加载后额外等待毫秒数",
     )
     add_parser.set_defaults(func=cmd_add)
 

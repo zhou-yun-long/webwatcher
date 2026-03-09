@@ -10,6 +10,9 @@ class Monitor:
     interval_seconds: int
     selector: Optional[str]
     noise_rules: Optional[str]
+    fetch_mode: Optional[str]
+    wait_for_selector: Optional[str]
+    wait_after_load_ms: int
     last_hash: Optional[str]
     last_checked_at: Optional[str]
     created_at: str

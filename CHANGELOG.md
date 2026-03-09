@@ -6,6 +6,9 @@
 - Reduced false positives from digits, dates, and regex-matched noise
 
 ## v0.3.0
+- Added Playwright support for JavaScript-rendered pages
+- Added `--fetch-mode playwright` for dynamic page monitoring
+- Added `--wait-for-selector` and `--wait-after-load-ms` tuning options
 - Added Dockerfile and docker-compose support
 - Improved setup experience for servers without Python venv
 - Updated launch materials for the current release
