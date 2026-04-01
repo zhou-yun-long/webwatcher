@@ -24,15 +24,15 @@ Minimal open-source website change monitor with selector tracking, noise filteri
 
 ## Suggested release tag
 
-`v0.3.0`
+`v0.4.0`
 
 ## Suggested release title
 
-`WebWatcher v0.3.0 - dynamic page monitoring, config support, and Docker`
+`WebWatcher v0.4.0 - noise filtering for more stable change detection`
 
 ## Release summary
 
-WebWatcher v0.3.0 turns the project into a much more practical self-hosted monitoring base.
+WebWatcher v0.4.0 improves signal quality by reducing false positives from unstable page content.
 
 It now supports:
 - CSS selector-based monitoring
@@ -51,7 +51,7 @@ Just a hackable, local-first website change monitor that is easy to understand a
 
 ## Short launch post (CN)
 
-把 **WebWatcher v0.3.0** 收完整了，今天正式能拿出来发了。
+把 **WebWatcher v0.4.0** 收完整了，今天正式能拿出来发了。
 
 这是一个很小但很实用的开源项目，目标很克制：
 **监控网页变化，尽量简单，自己就能部署。**
@@ -83,7 +83,7 @@ Just a hackable, local-first website change monitor that is easy to understand a
 
 ## Short launch post (EN)
 
-Just wrapped up **WebWatcher v0.3.0**.
+Just wrapped up **WebWatcher v0.4.0**.
 
 It is a small open-source project with a very specific goal:
 **watch webpage changes without building a huge monitoring platform.**

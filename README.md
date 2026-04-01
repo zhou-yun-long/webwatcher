@@ -211,7 +211,12 @@ That is intentional.
 
 ## Release status
 
-### v0.3.0
+### v0.4.0
+- Noise filtering rules ✅
+- `--noise-rules` CLI support ✅
+- Reduced false positives from unstable content ✅
+
+### Previously in v0.3.0
 - Playwright support for dynamic pages ✅
 - Docker / Compose ✅
 - Config file support ✅
