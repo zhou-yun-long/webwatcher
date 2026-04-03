@@ -1,5 +1,8 @@
 # WebWatcher
 
+[![CI](https://github.com/zhou-yun-long/webwatcher/actions/workflows/ci.yml/badge.svg)](https://github.com/zhou-yun-long/webwatcher/actions/workflows/ci.yml)
+[![Latest Release](https://img.shields.io/github/v/release/zhou-yun-long/webwatcher)](https://github.com/zhou-yun-long/webwatcher/releases)
+
 Track webpage changes with Python + SQLite.
 
 WebWatcher is a minimal open-source website change monitor for people who just want to watch a page, detect updates, and keep a simple local history — without setting up a heavy monitoring platform.
