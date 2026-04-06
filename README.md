@@ -47,33 +47,47 @@ python app.py check
 
 ## Example commands
 
+### Static page
+
 ```bash
-# Static page
 python app.py add \
   --url https://example.com \
   --name "Example Home"
+```
 
-# Partial page monitoring
+### Partial page monitoring
+
+```bash
 python app.py add \
   --url https://news.ycombinator.com \
   --selector '.titleline' \
   --name "HN Titles"
+```
 
-# Noise filtering
+### Noise filtering
+
+```bash
 python app.py add \
   --url https://example.com \
   --selector 'h1' \
   --noise-rules ignore_digits,ignore_dates \
   --name "Stable Example"
+```
 
-# JavaScript-rendered page
+### JavaScript-rendered page
+
+```bash
 python app.py add \
   --url https://example.com/dashboard \
   --name "Dynamic Example" \
   --fetch-mode playwright \
   --wait-for-selector '#app' \
   --wait-after-load-ms 1500
+```
 
+### Common follow-up commands
+
+```bash
 python app.py check
 python app.py list
 python app.py events --limit 20
