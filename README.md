@@ -34,6 +34,14 @@ WebWatcher is built for that exact use case.
 
 ## Quick start
 
+### Prerequisites
+
+- Python 3.10+
+- `pip`
+- Chromium installed via Playwright if you want to monitor JavaScript-rendered pages
+
+### Local setup
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
@@ -43,7 +51,16 @@ cp webwatcher.example.json webwatcher.json
 python app.py init
 python app.py add --url https://example.com --name "Example Home"
 python app.py check
+python app.py list
 ```
+
+### Expected first-run flow
+
+1. Copy `webwatcher.example.json` to `webwatcher.json`
+2. Run `python app.py init` to create the SQLite database
+3. Add one or more monitors with `python app.py add ...`
+4. Run `python app.py check` manually or from cron / scheduler
+5. Inspect recorded changes with `python app.py events --limit 20`
 
 ## Example commands
 
@@ -119,7 +136,23 @@ python -m playwright install chromium
 docker build -t webwatcher .
 docker run --rm -v $(pwd):/app -w /app webwatcher python app.py init
 docker run --rm -v $(pwd):/app -w /app webwatcher python app.py check
+docker run --rm -v $(pwd):/app -w /app webwatcher python app.py events --limit 20
 ```
+
+### docker-compose
+
+The included `docker-compose.yml` runs a one-shot `check` task:
+
+```bash
+docker compose up --build
+```
+
+Good fit when you want to trigger checks from:
+- cron on the host
+- a CI job
+- an external scheduler
+
+If you want persistent scheduling, keep the schedule outside WebWatcher for now.
 
 ## Config
 

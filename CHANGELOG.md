@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+- Clarified README first-run flow, Docker usage, and docker-compose behavior
+- Expanded contributing guide with local setup and project conventions
+
 ## v0.4.0
 - Added noise filtering rules for unstable page content
 - Added `--noise-rules` CLI option and monitor storage support
